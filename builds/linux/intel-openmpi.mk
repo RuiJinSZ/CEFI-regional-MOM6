@@ -56,10 +56,11 @@ LD = mpif90 $(MAIN_PROGRAM)
 
 # ISA
 # The Intel Instruction Set Archetecture (ISA) compile options to use.
-# If blank, than use the default ISA settings for the host.  Current
-# default is to use SSE2.
+# If blank, then use the default ISA settings for the host.  Current
+# default is to use the highest instruction set on the compilation host
+# and disable dynamic data alignment.
 ifndef ISA
-ISA = -xsse2
+ISA = -xHost -qno-opt-dynamic-align
 endif
 
 # COVERAGE
