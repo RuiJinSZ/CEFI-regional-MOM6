@@ -1,0 +1,1 @@
+/glade/work/rui/INPUT_default_nc/esm4_wetnoy_climo_1993-2014.nc

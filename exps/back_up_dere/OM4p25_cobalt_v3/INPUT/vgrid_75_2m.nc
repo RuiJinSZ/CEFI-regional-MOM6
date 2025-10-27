@@ -1,0 +1,1 @@
+/glade/work/rui/INPUT_default_nc/vgrid_75_2m.nc

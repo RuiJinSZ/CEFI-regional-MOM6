@@ -1,0 +1,1 @@
+/glade/work/rui/INPUT_default_nc/woa18_all_p00_01.nc

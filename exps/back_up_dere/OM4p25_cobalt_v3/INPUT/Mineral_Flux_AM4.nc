@@ -1,0 +1,1 @@
+/glade/work/rui/INPUT_default_nc/Mineral_Flux_AM4.nc

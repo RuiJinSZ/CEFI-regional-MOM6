@@ -1,0 +1,1 @@
+/glade/work/rui/INPUT_default_nc/grid_spec.nc

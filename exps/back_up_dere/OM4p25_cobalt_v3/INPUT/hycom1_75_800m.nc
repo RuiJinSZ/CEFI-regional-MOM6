@@ -1,0 +1,1 @@
+/glade/work/rui/INPUT_default_nc/hycom1_75_800m.nc

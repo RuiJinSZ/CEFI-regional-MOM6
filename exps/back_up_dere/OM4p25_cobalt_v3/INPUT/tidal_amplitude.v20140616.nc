@@ -1,0 +1,1 @@
+/glade/work/rui/INPUT_default_nc/tidal_amplitude.v20140616.nc

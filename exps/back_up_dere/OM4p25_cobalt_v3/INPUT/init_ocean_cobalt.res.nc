@@ -1,0 +1,1 @@
+/glade/work/rui/INPUT_default_nc/init_ocean_cobalt.res.nc

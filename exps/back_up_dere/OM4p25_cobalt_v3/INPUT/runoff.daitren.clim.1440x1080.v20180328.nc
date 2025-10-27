@@ -1,0 +1,1 @@
+/glade/work/rui/INPUT_default_nc/runoff.daitren.clim.1440x1080.v20180328.nc

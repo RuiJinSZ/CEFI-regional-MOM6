@@ -1,0 +1,1 @@
+/glade/work/rui/INPUT_default_nc/geothermal_davies2013_v1.nc

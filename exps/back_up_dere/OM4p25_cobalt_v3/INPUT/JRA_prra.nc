@@ -1,0 +1,1 @@
+/glade/work/rui/INPUT_default_nc/JRA_prra.nc

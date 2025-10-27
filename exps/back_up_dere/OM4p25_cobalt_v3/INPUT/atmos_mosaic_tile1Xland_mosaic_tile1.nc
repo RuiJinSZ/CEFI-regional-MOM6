@@ -1,0 +1,1 @@
+/glade/work/rui/INPUT_default_nc/atmos_mosaic_tile1Xland_mosaic_tile1.nc

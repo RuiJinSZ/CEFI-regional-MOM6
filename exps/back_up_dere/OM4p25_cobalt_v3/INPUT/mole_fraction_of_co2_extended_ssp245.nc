@@ -1,0 +1,1 @@
+/glade/work/rui/INPUT_default_nc/mole_fraction_of_co2_extended_ssp245.nc

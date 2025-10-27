@@ -1,0 +1,1 @@
+/glade/work/rui/INPUT_default_nc/land_mask.nc

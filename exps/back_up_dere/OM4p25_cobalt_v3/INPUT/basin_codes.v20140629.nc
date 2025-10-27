@@ -1,0 +1,1 @@
+/glade/work/rui/INPUT_default_nc/basin_codes.v20140629.nc

@@ -1,0 +1,30 @@
+#!/bin/bash
+#PBS -N MOM6_base
+#PBS -A CESM0030
+#PBS -k eod
+#PBS -q main
+#PBS -l walltime=06:00:00
+#PBS -l select=19:ncpus=128:mpiprocs=128
+
+
+count_file="count.txt"
+MAX_iteration=5
+
+#begin
+count=`cat "${count_file}"`
+echo ${count}
+
+
+#invoke run.sh to do the job
+bash do_autorun_job.sh ${count}
+
+
+#end
+count=$((count+1))
+echo ${count} > ${count_file}
+if ((${count} >= ${MAX_iteration})); then
+    echo "end!"
+else
+    qsub run_45×72_auto.pbs
+fi
+

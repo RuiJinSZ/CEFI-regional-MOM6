@@ -1,0 +1,1 @@
+/glade/work/rui/INPUT_default_nc/woa18_decav_s_monthly_fulldepth_01.nc
