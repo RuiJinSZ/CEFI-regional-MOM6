@@ -9,7 +9,7 @@ job_DIR="/glade/derecho/scratch/rui/CEFI-regional-MOM6/exps/OM4p25_cobalt_v3"
 # prepare inputs
 python generate_input_txt.py ${count}
 if ((${year} >= 1959)); then
-    mv .RESTART/*.res* ./INPUT
+    mv ./RESTART/*.res* ./INPUT
 fi
 
 
