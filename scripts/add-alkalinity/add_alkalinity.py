@@ -2,6 +2,26 @@
 Add alkalinity to 15 regions with given value, unit mol m^-3
 
 pH uses mol L-1, and 1 mol L^-1 = 1000 mol m^-3
+
+--------------------------------------------------------------------------------
+Variable             Shape                Units                Description                   
+--------------------------------------------------------------------------------
+time                 (1,)                 N/A                  N/A                           
+grid_x_T             (1440,)              degree_east          Nominal Longitude of T-ce...  
+grid_y_T             (1080,)              degree_north         Nominal Latitude of T-cel...  
+NO3_CONC             (1, 1080, 1440)      mol m-3              DIN_CONC                      
+LDON_CONC            (1, 1080, 1440)      mol m-3              0.3*DON_CONC                  
+SLDON_CONC           (1, 1080, 1440)      mol m-3              0.35*DON_CONC                 
+SRDON_CONC           (1, 1080, 1440)      mol m-3              0.35*DON_CONC                 
+NDET_CONC            (1, 1080, 1440)      mol m-3              1.0*PN_CONC                   
+PO4_CONC             (1, 1080, 1440)      mol m-3              PO4_CONC                      
+LDOP_CONC            (1, 1080, 1440)      mol m-3              0.3*DOP_CONC                  
+SLDOP_CONC           (1, 1080, 1440)      mol m-3              0.35*DOP_CONC                 
+SRDOP_CONC           (1, 1080, 1440)      mol m-3              0.35*DOP_CONC                 
+PDET_CONC            (1, 1080, 1440)      mol m-3              0.3*PP_CONC                   
+FED_CONC             (1, 1080, 1440)      mol m-3              FED_CONC                      
+FEDET_CONC           (1, 1080, 1440)      mol m-3              FEDET_CONC                    
+ALK_CONC             (1, 1080, 1440)      N/A                  N/A
 """
 
 
@@ -16,106 +36,20 @@ import cartopy.feature as cfeature
 import matplotlib.ticker as mticker
 import pandas as pd
 
+from utils import region_to_box_lat_lon
 
-region_to_box_lat_lon = {
-    "Salish Sea/Puget Sound": {
-        "latmin": 47.0,
-        "latmax": 49.0,
-        "lonmin": -126.0,
-        "lonmax": -122.0
-    },
-    "Gulf of Mexico, near Houston": {
-        "latmin": 28.0,
-        "latmax": 30.0,
-        "lonmin": -96.0,
-        "lonmax": -93.0
-    },
-    "Norfolk VA": {
-        "latmin": 36.0,
-        "latmax": 38.0,
-        "lonmin": -78.0,
-        "lonmax": -75.0
-    },
-    "Halifax Habour": {
-        "latmin": 43.0,
-        "latmax": 46.0,
-        "lonmin": -65.0,
-        "lonmax": -61.0
-    },
-    "At the Amazon": {
-        "latmin": -3.0,
-        "latmax": 2.0,
-        "lonmin": -51.0,
-        "lonmax": -47.0
-    },
-    "Sao Francisco River": {
-        "latmin": -12.0,
-        "latmax": -9.0,
-        "lonmin": -38.0,
-        "lonmax": -34.0
-    },
-    "Ortigueira estuary": {
-        "latmin": 43.0,
-        "latmax": 45.0,
-        "lonmin": -9.0,
-        "lonmax": -7.0
-    },
-    "Elbe Delta": {
-        "latmin": 53.0,
-        "latmax": 55.0,
-        "lonmin": 8.0,
-        "lonmax": 10.0
-    },
-    "Tana River Delta Kenya": {
-        "latmin": -4.5,
-        "latmax": -1.0,
-        "lonmin": 39.0,
-        "lonmax": 43.0
-    },
-    "Persian Gulf": {
-        "latmin": 24.0,
-        "latmax": 30.0,
-        "lonmin": 48.0,
-        "lonmax": 56.0
-    },
-    "Bay of Bengal": {
-        "latmin": 19.0,
-        "latmax": 23.0,
-        "lonmin": 88.0,
-        "lonmax": 92.0
-    },
-    "Singapore": {
-        "latmin": 0.0,
-        "latmax": 3.0,
-        "lonmin": 101.0,
-        "lonmax": 106.0
-    },
-    "Yellow Sea": {
-        "latmin": 35.0,
-        "latmax": 40.0,
-        "lonmin": 124.0,
-        "lonmax": 128.0
-    },
-    "West coast Australia, Indian Ocean": {
-        "latmin": -33.0,
-        "latmax": -28.0,
-        "lonmin": 112.0,
-        "lonmax": 117.0
-    },
-    "Timor-Arafura Sea": {
-        "latmin": -14.0,
-        "latmax": -9.0,
-        "lonmin": 133.0,
-        "lonmax": 138.0
-    }
-}
+
+original_river_alk_concentration = 0.42e-3
 
 
 class RiverParser:
     def __init__(self, dataset):
         self.times = dataset.variables["time"]
         self.latitudes = dataset.variables["grid_y_T"]
-        self.longitudes = dataset.variables["grid_x_T"]
+        self.longitudes = np.array(dataset.variables["grid_x_T"])
+        # region_to_box_lat_lon is using -180 <= longitude <= 180
+        # but nc is using -300 <= longitude <= 60, so move it
+        self.longitudes[self.longitudes < -180] += 360
 
     @property
     def len_times(self) -> int:
@@ -141,8 +75,6 @@ class RiverParser:
         indices_within_lon = []
         for index in range(self.len_longitudes):
             longitude = self.longitudes[index]
-            if longitude <= -180:
-                longitude += 360
             if coordinate["lonmin"] <= longitude and longitude <= coordinate["lonmax"]:
                 indices_within_lon.append(index)
         index_lonmin = indices_within_lon[0]
@@ -165,8 +97,13 @@ def plot_regions(data: np.ndarray, latitudes: np.ndarray, longitudes: np.ndarray
 
     # Plot the alkalinity data
     lon_grid, lat_grid = np.meshgrid(longitudes, latitudes)
-    cs = ax.contourf(lon_grid, lat_grid, data[0, :, :], transform=ccrs.PlateCarree(), cmap='viridis', levels=np.linspace(0, np.amax(data), 100))
-    fig.colorbar(cs, ax=ax, shrink=0.5, label='Alkalinity')
+    cs = ax.contourf(
+        lon_grid, lat_grid, data[0, :, :],
+        transform=ccrs.PlateCarree(),
+        cmap='viridis',
+        levels=np.linspace(np.min(data), np.amax(data), 100),
+    )
+    fig.colorbar(cs, ax=ax, label='Alkalinity')
 
     # Plot each region as a box
     for region, coordinate in region_to_box_lat_lon.items():
@@ -178,18 +115,22 @@ def plot_regions(data: np.ndarray, latitudes: np.ndarray, longitudes: np.ndarray
     plt.show()
 
 
-def create_alk(input_nc, output_nc, concentration):
+def create_alk(input_nc, output_nc, extra_concentration):
     input_dataset = xr.open_dataset(input_nc, engine="netcdf4")
     river_parser = RiverParser(input_dataset)
 
-    alk = np.ones((river_parser.len_times, river_parser.len_latitudes, river_parser.len_longitudes), dtype=np.float64)
+    alk = np.full(
+        (river_parser.len_times, river_parser.len_latitudes, river_parser.len_longitudes),
+        original_river_alk_concentration,
+        dtype=np.float64,
+    )
     for region, coordinate in region_to_box_lat_lon.items():
         indices_of_lat_lon = river_parser.map_coordinate_to_slice_indices(coordinate)
         index_latmin = indices_of_lat_lon["index_latmin"]
         index_latmax = indices_of_lat_lon["index_latmax"]
         index_lonmin = indices_of_lat_lon["index_lonmin"]
         index_lonmax = indices_of_lat_lon["index_lonmax"]
-        alk[:, index_latmin : index_latmax, index_lonmin : index_lonmax] = concentration
+        alk[:, index_latmin : index_latmax, index_lonmin : index_lonmax] += extra_concentration
 
     alk_data_array = xr.DataArray(
         alk,
@@ -207,7 +148,10 @@ def create_alk(input_nc, output_nc, concentration):
 
 if __name__ == "__main__":
     input_nc = "RiverNutrients_GlobalNEWS2_DaiTren_012222_OM4p25.nc"
-    output_nc = "WithAlkalinity_RiverNutrients_GlobalNEWS2_DaiTren_012222_OM4p25.nc"
-    concentration_in_mol_L = 1.0
-    concentration_in_mol_m3 = 1000.0 * concentration_in_mol_L
-    create_alk(input_nc, output_nc, concentration_in_mol_m3)
+    output_nc = f"WithAlkalinity_{input_nc}"
+    # annually
+    #     alkalinity (NaOH) mass 109.08 mega ton
+    #     alkalinity (NaOH) mol 2.727 Tmol
+    # after 20 years, same to Kristen 54.54 Tmol
+    extra_concentration = 0.00097038
+    create_alk(input_nc, output_nc, extra_concentration)
