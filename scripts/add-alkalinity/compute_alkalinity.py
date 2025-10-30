@@ -83,7 +83,7 @@ def compute_total_water_flux(input_nc) -> float:
 if __name__ == "__main__":
     alkalinity_name = "NaOH"
     molar_mass = 40
-    # meta ton
+    # mega ton
     alkalinity_mass = 40 * 54.54 / 20
     # mol
     alkalinity_mol = alkalinity_mass * 1e6 * 1e3 * 1e3 / molar_mass
