@@ -1,0 +1,3 @@
+#override IO_LAYOUT = 1,4
+#override LAYOUT  = 90,72
+#override MASKTABLE = mask_table.1809.90x72.4671
