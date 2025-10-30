@@ -97,11 +97,11 @@ def plot_regions(data: np.ndarray, latitudes: np.ndarray, longitudes: np.ndarray
 
     # Plot the alkalinity data
     lon_grid, lat_grid = np.meshgrid(longitudes, latitudes)
-    cs = ax.contourf(
+    cs = ax.pcolormesh(
         lon_grid, lat_grid, data[0, :, :],
         transform=ccrs.PlateCarree(),
         cmap='viridis',
-        levels=np.linspace(np.min(data), np.amax(data), 100),
+        shading='nearest',
     )
     fig.colorbar(cs, ax=ax, label='Alkalinity')
 
